@@ -1,0 +1,119 @@
+// BUILDER PATTERN
+// CREATIONAL PATTERNS
+class Worm {
+    private length: number;
+    static builder(): WormBuilder {
+        return new WormBuilder();
+    }
+    constructor(length: number) {
+        this.length = length;
+    }
+    public getLength(): number {
+        return this.length;
+    }
+}
+class WormBuilder {
+    private length: number = 0;
+    public setLength(length: number): WormBuilder {
+        this.length = length;
+        return this;
+    }
+    public build() {
+        return new Worm(this.length);
+    }
+}
+class Apple {
+    private color: string;
+    private type: string;
+    private endDate: Date;
+    private worm: Worm;
+    static builder(): AppleBuilder {
+        return new AppleBuilder();
+    }
+    constructor(color: string, type: string, endDate: Date, worm: Worm) {
+        this.color = color;
+        this.type = type;
+        this.endDate = endDate;
+        this.worm = worm;
+    }
+    public getColor(): string {
+        return this.color;
+    }
+    public getType(): string {
+        return this.type;
+    }
+    public getEndDate(): Date {
+        return this.endDate;
+    }
+    public getWorm(): Worm {
+        return this.worm;
+    }
+}
+class AppleBuilder {
+    private color: string = "";
+    private type: string = "";
+    private endDate: Date = new Date();
+    private worm: Worm = new Worm(0);
+    setType(type: string): AppleBuilder {
+        this.type = type;
+        this.color = type === "pink lady" ? "red" : "green";
+        return this;
+    }
+    setEndDate(timestamp: number): AppleBuilder {
+        this.endDate = new Date(timestamp);
+        return this;
+    }
+    // property of type function
+    //                               return type
+    setWorm(callback: (builder: WormBuilder) => Worm): AppleBuilder {
+        this.worm = callback(Worm.builder());
+        return this;
+    }
+    public build(): Apple {
+        return new Apple(this.color, this.type, this.endDate, this.worm);
+    }
+}
+// const redApple = new Apple("red");
+const applesFromAPI = [
+    {
+        type: "pink lady",
+        endDate: 213421342134213,
+        worm: {
+            length: 10,
+            parasite: {
+                width: 2
+            }
+        }
+    },
+    {
+        type: "green lady",
+        endDate: 213421342134213,
+        worm: {
+            length: 6,
+            parasite: {
+                width: 2
+            }
+        }
+    },
+    {
+        type: "blue lady",
+        endDate: 213421342134213,
+        worm: {
+            length: 1,
+            parasite: {
+                width: 2
+            }
+        }
+    },
+]
+// Fluent Interface <-- often used by builders
+const applesForApplication = applesFromAPI.map(apple => {
+    return Apple.builder()
+        .setType(apple.type)
+        .setEndDate(apple.endDate)
+        .setWorm((wormBuilder) => wormBuilder
+                .setLength(apple.worm.length)
+                .build()
+        )
+        .build();
+});
